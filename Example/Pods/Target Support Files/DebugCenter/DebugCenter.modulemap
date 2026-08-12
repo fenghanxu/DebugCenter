@@ -1,0 +1,6 @@
+framework module DebugCenter {
+  umbrella header "DebugCenter-umbrella.h"
+
+  export *
+  module * { export * }
+}

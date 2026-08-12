@@ -1,0 +1,16 @@
+PODS:
+  - DebugCenter (0.1.0)
+
+DEPENDENCIES:
+  - DebugCenter (from `../`)
+
+EXTERNAL SOURCES:
+  DebugCenter:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  DebugCenter: 57d5be694f9b530e9dfa7a53712cd0938dd9e430
+
+PODFILE CHECKSUM: 490625c5a5f64d82aae9560f31541ba91bc16dcb
+
+COCOAPODS: 1.16.2
