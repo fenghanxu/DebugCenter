@@ -1,8 +1,7 @@
 
-
 import UIKit
 
-public class FHXLogViewController: UIViewController {
+public class FHXLogViewController: UIViewController, UIGestureRecognizerDelegate {
     
     lazy private var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -13,6 +12,11 @@ public class FHXLogViewController: UIViewController {
         scrollView.bounces = false
         scrollView.isPagingEnabled = true
         scrollView.backgroundColor = .red
+ 
+        scrollView.alwaysBounceHorizontal = false
+        scrollView.alwaysBounceVertical = false
+        scrollView.isDirectionalLockEnabled = true
+
         return scrollView
     }()
     
@@ -138,12 +142,12 @@ public class FHXLogViewController: UIViewController {
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
+        navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
     deinit {
@@ -157,6 +161,28 @@ public class FHXLogViewController: UIViewController {
         scrollView.addSubview(navigatonView)
         scrollView.addSubview(currentTableView)
         scrollView.addSubview(historyTableView)
+        
+        guard let popGesture = navigationController?.interactivePopGestureRecognizer else {
+            return
+        }
+
+        popGesture.delegate = self
+
+        // 让 UIScrollView 的横向 pan 等待系统侧滑返回手势判断失败以后再执行
+        scrollView.panGestureRecognizer.require(toFail: popGesture)
+    }
+    
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        guard gestureRecognizer === navigationController?.interactivePopGestureRecognizer else {
+            return true
+        }
+
+        guard let navigationController = navigationController else {
+            return false
+        }
+
+        return navigationController.viewControllers.count > 1
     }
 
     private func addNotification() {
@@ -509,11 +535,15 @@ extension FHXLogViewController: UITableViewDataSource, UITableViewDelegate {
         switch tableView.tag {
         case 101:
             if filterCurrentLogs[indexPath.row].contentFullHeight > 200 {
-                FHXDetailView.showCurrentView(model: filterCurrentLogs[indexPath.row], VCView: view)
+                let vc = FHXDetailViewController()
+                vc.model = filterCurrentLogs[indexPath.row]
+                navigationController?.pushViewController(vc, animated: true)
             }
         case 102:
             if filterHistoryLogs[indexPath.row].contentFullHeight > 200 {
-                FHXDetailView.showCurrentView(model: filterHistoryLogs[indexPath.row], VCView: view)
+                let vc = FHXDetailViewController()
+                vc.model = filterHistoryLogs[indexPath.row]
+                navigationController?.pushViewController(vc, animated: true)
             }
         default:
             break
@@ -573,7 +603,7 @@ extension FHXLogViewController:FHXNavigationViewDelegate{
 
     func fhxNavigationView(view:FHXNavigationView, buttonClick button:UIButton) {
         if button.tag == 0 { // pop
-            navigationController?.popViewController(animated: true)
+            dismiss(animated: true)
         } else if button.tag == 1 {// 当前日志
             
             ToolCurrentPopupView.showCurrentView(

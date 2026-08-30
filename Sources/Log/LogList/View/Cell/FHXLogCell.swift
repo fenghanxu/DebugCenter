@@ -1,5 +1,3 @@
-
-
 import UIKit
 
 class FHXLogCell: UITableViewCell {
@@ -9,54 +7,80 @@ class FHXLogCell: UITableViewCell {
     /// 点击展开回调
     var expandBlock: (() -> Void)?
 
+    // MARK: - UI
+
     private lazy var line: UIView = {
         let line = UIView()
+
         line.backgroundColor = UIColor(
             red: 229.0 / 255.0,
             green: 229.0 / 255.0,
             blue: 229.0 / 255.0,
             alpha: 1.0
         )
+
         return line
     }()
 
     lazy var levelLabel: UILabel = {
         let label = UILabel()
+
         label.text = "error"
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 14)
         label.backgroundColor = .red
         label.textAlignment = .center
+
         label.layer.cornerRadius = 4.0
         label.clipsToBounds = true
+
         return label
     }()
 
     lazy var methodNameLabel: UILabel = {
         let label = UILabel()
+
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 14)
         label.textAlignment = .left
+
         return label
     }()
 
     lazy var timeLabel: UILabel = {
         let label = UILabel()
+
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 14)
+
         return label
     }()
 
     lazy var contentLabel: UILabel = {
         let label = UILabel()
+
         label.numberOfLines = 5
         label.lineBreakMode = .byTruncatingTail
+
+        return label
+    }()
+
+    lazy var moreLabel: UILabel = {
+        let label = UILabel()
+
+        label.text = "......"
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textAlignment = .left
+
         return label
     }()
 
     lazy var expandButton: UIButton = {
         let button = UIButton(type: .system)
+
         button.setTitle("展开", for: .normal)
+
         button.setTitleColor(
             UIColor(
                 red: 18.0 / 255.0,
@@ -66,8 +90,9 @@ class FHXLogCell: UITableViewCell {
             ),
             for: .normal
         )
+
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        button.isHidden = true
+
         button.layer.cornerRadius = 4
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor(
@@ -76,13 +101,19 @@ class FHXLogCell: UITableViewCell {
             blue: 219.0 / 255.0,
             alpha: 1.0
         ).cgColor
+
         button.clipsToBounds = true
-        button.isEnabled = false
+
+        button.addTarget(
+            self,
+            action: #selector(expandButtonClick),
+            for: .touchUpInside
+        )
+
         return button
     }()
 
-    // 系统 Auto Layout 约束
-    private var expandButtonHeightConstraint: NSLayoutConstraint?
+    // MARK: - Init
 
     static func cell(
         with tableview: UITableView
@@ -118,6 +149,8 @@ class FHXLogCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - UI
+
     private func buildUI() {
 
         selectionStyle = .none
@@ -128,23 +161,20 @@ class FHXLogCell: UITableViewCell {
         contentView.addSubview(timeLabel)
         contentView.addSubview(methodNameLabel)
         contentView.addSubview(contentLabel)
+        contentView.addSubview(moreLabel)
         contentView.addSubview(expandButton)
 
-        // 关闭 autoresizing mask
         line.translatesAutoresizingMaskIntoConstraints = false
         levelLabel.translatesAutoresizingMaskIntoConstraints = false
         timeLabel.translatesAutoresizingMaskIntoConstraints = false
         methodNameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
+        moreLabel.translatesAutoresizingMaskIntoConstraints = false
         expandButton.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
 
             // MARK: - line
-
-            line.heightAnchor.constraint(
-                equalToConstant: 1
-            ),
 
             line.leadingAnchor.constraint(
                 equalTo: contentView.leadingAnchor
@@ -156,6 +186,10 @@ class FHXLogCell: UITableViewCell {
 
             line.bottomAnchor.constraint(
                 equalTo: contentView.bottomAnchor
+            ),
+
+            line.heightAnchor.constraint(
+                equalToConstant: 1
             ),
 
             // MARK: - levelLabel
@@ -228,52 +262,70 @@ class FHXLogCell: UITableViewCell {
                 constant: -10
             ),
 
-            // MARK: - expandButton
+            // MARK: - moreLabel
 
-            expandButton.topAnchor.constraint(
+            moreLabel.topAnchor.constraint(
                 equalTo: contentLabel.bottomAnchor,
                 constant: 5
             ),
 
-            expandButton.leadingAnchor.constraint(
+            moreLabel.leadingAnchor.constraint(
                 equalTo: contentView.leadingAnchor,
                 constant: 10
+            ),
+
+            moreLabel.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor,
+                constant: -10
+            ),
+
+            // MARK: - expandButton
+
+            expandButton.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor,
+                constant: -10
+            ),
+
+            expandButton.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -10
             ),
 
             expandButton.widthAnchor.constraint(
                 equalToConstant: 50
             ),
 
-            expandButton.bottomAnchor.constraint(
-                equalTo: contentView.bottomAnchor,
-                constant: -10
-            )
-        ])
-
-        // 单独保存高度约束，方便后续动态修改
-        expandButtonHeightConstraint =
             expandButton.heightAnchor.constraint(
                 equalToConstant: 30
             )
+        ])
 
-        expandButtonHeightConstraint?.isActive = true
+        // 默认隐藏
+        moreLabel.isHidden = true
+        expandButton.isHidden = true
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    // MARK: - Expand
 
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        CATransaction.commit()
-    }
-
-    /// 外部调用判断是否显示按钮
     func showExpandButton(_ show: Bool) {
 
+        moreLabel.isHidden = !show
         expandButton.isHidden = !show
+    }
 
-        expandButtonHeightConstraint?.constant = show ? 30 : 0
+    @objc
+    private func expandButtonClick() {
+        expandBlock?()
+    }
 
-        layoutIfNeeded()
+    // MARK: - Reuse
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        moreLabel.isHidden = true
+        expandButton.isHidden = true
+
+        expandBlock = nil
     }
 }

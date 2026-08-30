@@ -17,6 +17,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        
+        
         FHXSandboxTestImporter.importTestFiles()
         
         // 1.(主推方法) 打印不同类型的数据 + 支持不同的错误类型
@@ -131,22 +133,31 @@ class ViewController: UIViewController {
 
 
 
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now()+1.0) {
-            DispatchQueue.main.async {
-                let vc = FHXLogViewController()
-                self.navigationController?.pushViewController(vc, animated: true)
-//                self.present(vc, animated: true)
-            }
-        }
+//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now()+1.0) {
+//            DispatchQueue.main.async {
+//                let vc = FHXLogViewController()
+//                self.navigationController?.pushViewController(vc, animated: true)
+//            }
+//        }
         
 //        startAddMessage()
         
 
         
-        FHXDebugKit.start()
+//        FHXDebugKit.start()
         
         requestCityStation_a()
-//        requestCityStation_b()
+        requestCityStation_b()
+        
+        
+        
+//                DispatchQueue.global().asyncAfter(deadline: DispatchTime.now()+1.0) {
+//                    DispatchQueue.main.async {
+//                        self.navigationController?.pushViewController(AViewController(), animated: true)
+//                        self.present(AViewController(), animated: true)
+//                    }
+//                }
+        
     }
     
     func requestCityStation_a() {

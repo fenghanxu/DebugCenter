@@ -411,11 +411,7 @@ private extension FHXTIFPreview {
 
     @objc
     func singleTap() {
-
-
-        navigationController?.popViewController(
-            animated:true
-        )
+        dismiss(animated: true)
     }
 
 

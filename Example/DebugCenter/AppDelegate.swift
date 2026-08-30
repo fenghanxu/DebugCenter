@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import DebugCenter
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,19 +16,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+
         let window = UIWindow(frame: UIScreen.main.bounds)
-
         let viewController = ViewController()
-
-        let navigationController = UINavigationController(
-            rootViewController: viewController
-        )
-
+        let navigationController = UINavigationController(rootViewController: viewController)
         window.rootViewController = navigationController
-
         self.window = window
-
         window.makeKeyAndVisible()
+//        FHXDebugGesture.shared.start()
+        FHXDebugCenter.start()
         return true
     }
 

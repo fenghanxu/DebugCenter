@@ -260,10 +260,7 @@ private extension FHXImagePreview {
 
     @objc
     func singleTap() {
-
-        navigationController?.popViewController(
-            animated: true
-        )
+        dismiss(animated: true)
     }
 
     @objc
