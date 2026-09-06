@@ -27,6 +27,8 @@
  
  */
 
+
+
 import Foundation
 import ObjectiveC.runtime
 
@@ -36,98 +38,169 @@ final class FHXCompletionSwizzle {
 
         let cls: AnyClass = URLSession.self
 
-        let selector1 = NSSelectorFromString("dataTaskWithRequest:completionHandler:")
+        let originalSelector = NSSelectorFromString("dataTaskWithRequest:completionHandler:")
 
-        let selector2 = #selector(URLSession.fhx_dataTask(with:completionHandler:))
+        let swizzledSelector =
+            #selector(
+                URLSession.fhx_dataTask(
+                    with:completionHandler:
+                )
+            )
 
-        guard let original = class_getInstanceMethod(cls, selector1),
-              let swizzled = class_getInstanceMethod(cls, selector2)
+        guard
+            let original = class_getInstanceMethod(
+                cls,
+                originalSelector
+            ),
+            let swizzled = class_getInstanceMethod(
+                cls,
+                swizzledSelector
+            )
         else {
-            print("Completion Swizzle Fail")
             return
         }
 
-        method_exchangeImplementations(original, swizzled)
-
-        print("Completion Swizzle Success")
+        method_exchangeImplementations(
+            original,
+            swizzled
+        )
     }
 }
+
+// MARK: - URLSession
 
 extension URLSession {
 
     @objc
-    func fhx_dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        
-        /// 记录创建 Task 的时间
+    func fhx_dataTask(
+        with request: URLRequest,
+        completionHandler: @escaping (
+            Data?,
+            URLResponse?,
+            Error?
+        ) -> Void
+    ) -> URLSessionDataTask {
+
         let startTime = Date()
 
-        let wrappedCompletion:(Data?, URLResponse?, Error?) -> Void = {data, response, error in
+        var task: URLSessionDataTask?
 
-            // 得到请求需要的耗时
+        let wrappedCompletion:(Data?, URLResponse?, Error?) -> Void = { data, response, error in
+
             let cost = Date().timeIntervalSince(startTime)
 
-            /// 获取错误吗
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
 
-            /// 把服务器返回的数据：data 转换成  json字符串
-            let responseString = String(data: data ?? Data(), encoding: .utf8) ?? ""
+            let realTask = task
 
-            /// 读取请求参数
-            let parameter = request.httpBody.flatMap {String( data: $0, encoding: .utf8)} ?? ""
-            
-            
-            let log = """
-            Method : \(request.httpMethod ?? "GET")
-            URL : \(request.url?.absoluteString ?? "")
-            StatusCode : \(statusCode)
-            CostTime : \(Int(cost * 1000)) ms
-            Headers :
-            \(prettyJSON(request.allHTTPHeaderFields ?? [:]))
-            
-            Parameters :
-            \(prettyJSONString(parameter))
-            
-            Response :
-            \(prettyJSONString(responseString))
-            
-            Error :
-            \(error?.localizedDescription ?? "nil")
-            """
+            let finalRequest =
+                realTask?.fhx_request
+                ?? realTask?.currentRequest
+                ?? realTask?.originalRequest
+                ?? request
 
-            FHXLog.shared.log(log, .network)
+            let parameterData =
+                realTask?.fhx_requestBodyData
+                ?? finalRequest.httpBody
 
-            /// 打印日志
+            let parameter =
+                parameterData.flatMap {
+                    String(
+                        data: $0,
+                        encoding: .utf8
+                    )
+                } ?? ""
+
+            let responseString =
+                String(
+                    data: data ?? Data(),
+                    encoding: .utf8
+                ) ?? ""
+
+            let headers = self.redactedHeaders(finalRequest.allHTTPHeaderFields ?? [:])
+
             print("""
-
-            =========================
             
-            方法的替换打印数据：
-
-            Method \(request.httpMethod ?? "GET")
-
-            URL \(request.url?.absoluteString ?? "")
-
-            Header \(prettyJSON(request.allHTTPHeaderFields ?? [:]))
-
-            Parameter \(prettyJSONString(parameter))
-
-            Response \(prettyJSONString(responseString))
-
-            StatusCode \(statusCode)
-
-            CostTime \(Int(cost * 1000))ms
+            =========  DebugCenter  ================
             
-            Error
-            \(error?.localizedDescription ?? "nil")
+            StatusCode: \(statusCode)
 
+            CostTime: \(Int(cost * 1000))ms
+
+            Error: \(error?.localizedDescription ?? "nil")
+
+            Method: \(finalRequest.httpMethod ?? "GET")
+
+            URL: \(finalRequest.url?.absoluteString ?? "")
+
+            Header:
+            \(prettyJSON(headers))
+            
+            Parameter:
+            \(prettyJSONString(parameter))
+
+            Response:
+            \(prettyJSONString(responseString))
             =========================
-
             """)
 
-            /// 干完自己想干的事情之后，让接口返回数据
-            completionHandler(data, response, error)
+            // =====================================================
+            // 保存日志
+            // =====================================================
+
+            let log = """
+            Method : \(finalRequest.httpMethod ?? "GET")
+            URL : \(finalRequest.url?.absoluteString ?? "")
+            StatusCode : \(statusCode)
+            CostTime : \(Int(cost * 1000)) ms
+            Error : \(error?.localizedDescription ?? "nil")
+            Headers :
+            \(prettyJSON(headers))
+            Parameters :
+            \(prettyJSONString(parameter))
+            Response :
+            \(prettyJSONString(responseString))
+            """
+
+            FHXLog.shared.log(
+                log,
+                .network
+            )
+
+            completionHandler(
+                data,
+                response,
+                error
+            )
         }
 
-        return fhx_dataTask(with: request, completionHandler: wrappedCompletion)
+        task = fhx_dataTask(
+            with: request,
+            completionHandler: wrappedCompletion
+        )
+
+        return task!
+    }
+    
+    func redactedHeaders(
+        _ headers: [String: String]
+    ) -> [String: String] {
+
+        var result = headers
+
+        for key in result.keys {
+
+            let lowerKey =
+                key.lowercased()
+
+            if lowerKey == "authorization" ||
+                lowerKey == "cookie" ||
+                lowerKey == "set-cookie" {
+
+                result[key] = "***REDACTED***"
+            }
+        }
+
+        return result
     }
 }

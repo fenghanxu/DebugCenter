@@ -55,8 +55,7 @@ private extension FHXLogStore {
                 decoder.dateDecodingStrategy = .iso8601
                 historyLogList = try decoder.decode([FHXLogModel].self,from: data)
             } catch {
-                print("FHXLog load error:", error)
-
+                print("获取历史日志数据失败")
             }
         }
     }
@@ -158,9 +157,7 @@ extension FHXLogStore {
 
 extension FHXLogStore {
 
-    func deleteCurrentLog(
-        id: String
-    ) {
+    func deleteCurrentLog(id: String) {
         queue.async {
             self.currentLogList.removeAll {$0.id == id}
             DispatchQueue.main.async {
@@ -172,9 +169,7 @@ extension FHXLogStore {
         }
     }
     
-    func deleteHistoryLog(
-        id: String
-    ) {
+    func deleteHistoryLog(id: String) {
         queue.async {
             self.historyLogList.removeAll { $0.id == id }
             self.saveHistoryData()
@@ -315,11 +310,7 @@ private extension FHXLogStore {
             )
 
         } catch {
-
-            print(
-                "FHXLog save error:",
-                error
-            )
+            print("保存历史数据失败")
         }
     }
 }

@@ -53,8 +53,6 @@ public extension FHXDebugGesture {
         tripleTapGesture = nil
 
         window = nil
-
-        print("🛑 DebugCenter Gesture Stopped")
     }
 }
 
@@ -64,12 +62,7 @@ private extension FHXDebugGesture {
 
     func installGesture() {
 
-        guard let window = currentWindow() else {
-
-            print("⚠️ DebugCenter: Window 获取失败")
-
-            return
-        }
+        guard let window = currentWindow() else { return }
 
         self.window = window
 
@@ -87,10 +80,6 @@ private extension FHXDebugGesture {
         window.addGestureRecognizer(gesture)
 
         tripleTapGesture = gesture
-
-        print("✅ DebugCenter Gesture Started")
-
-        print("🪟 DebugCenter Window:", window)
     }
 }
 
@@ -101,27 +90,12 @@ private extension FHXDebugGesture {
     @objc
     func handleTripleTap() {
 
-        print("🔥 DebugCenter Triple Tap")
-
         guard let viewController = currentViewController() else {
-
-            print(
-                "⚠️ DebugCenter: 当前 ViewController 获取失败"
-            )
-
             return
         }
 
-        print(
-            "📱 Current ViewController:",
-            String(
-                describing: type(of: viewController)
-            )
-        )
-
-        FHXDebugCenter.show(
-            from: viewController
-        )
+        FHXDebugCenter.show(from: viewController)
+        
     }
     
 }

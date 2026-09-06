@@ -19,20 +19,11 @@ public final class FHXDebugCenter {
 
         // 启动全局三击手势
         FHXDebugGesture.shared.start()
-
-        print("FHXDebugCenter Started")
     }
 
     // MARK: - Show
 
     static func show(from viewController: UIViewController) {
-
-        print(
-            "🚀 DebugCenter Show From:",
-            String(
-                describing: type(of: viewController)
-            )
-        )
 
         // 如果当前已经是日志页面，不重复打开
         if viewController is FHXLogViewController {

@@ -79,7 +79,6 @@ class FHXExportView: UIView {
     }()
 
     lazy private var txtButton: UIButton = {
-
         let button = UIButton()
         button.tag = 0
         button.setTitle("TXT", for: .normal)

@@ -131,122 +131,140 @@ class ViewController: UIViewController {
         // (保留方法写法)网络日志
         FHXLog.shared.network(json_1)
 
+        
+//        requestCityStation_a()
+        requestCityStation_c()
 
-
-//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now()+1.0) {
-//            DispatchQueue.main.async {
-//                let vc = FHXLogViewController()
-//                self.navigationController?.pushViewController(vc, animated: true)
-//            }
-//        }
-        
-//        startAddMessage()
-        
-
-        
-//        FHXDebugKit.start()
-        
-        requestCityStation_a()
-        requestCityStation_b()
-        
-        
-        
-//                DispatchQueue.global().asyncAfter(deadline: DispatchTime.now()+1.0) {
-//                    DispatchQueue.main.async {
-//                        self.navigationController?.pushViewController(AViewController(), animated: true)
-//                        self.present(AViewController(), animated: true)
-//                    }
-//                }
         
     }
     
-    func requestCityStation_a() {
-
-        guard let url = URL(string: "https://eetest.cpolar.cn/api/cityStation/getAllCitiesWithStations") else {
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-
-        let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTU4LCJvcmciOjAsInJvbGUiOiIiLCJVc2VybmFtZSI6IuWRqOS5nyIsIlJlYWxOYW1lIjoiIiwiQXV0aG9yaXR5SWQiOjAsImF1dGhvcml0eUlkcyI6WzgsNV0sIklEIjoxNTgsIlVVSUQiOiIxZTBhNjllYi00OTcxLTRmMjctODExZS03Y2Y0NWM0YWIwM2MiLCJCdWZmZXJUaW1lIjo2MDQ4MDAsImlzcyI6ImFpcmtvb24iLCJhdWQiOlsiRUVCVVMiXSwiZXhwIjoxNzg4MDcxODgzLCJuYmYiOjE3ODU0Nzk4ODN9.K3lnevIrsJ4aufb6pctzSgNTNABrxsXwaGb0dT1xk48"
-
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue(token, forHTTPHeaderField: "Authorization")
-
-        // 自己创建 Configuration
-        let config = URLSessionConfiguration.default
-
-        print("Before =", config.protocolClasses ?? [])
-
-        // 直接手动注入
-        config.protocolClasses = [FHXURLProtocol.self] + (config.protocolClasses ?? [])
-
-        print("After =", config.protocolClasses ?? [])
-
-        let session = URLSession(configuration: config)
-
-        session.dataTask(with: request) { data, response, error in
-
-            print("业务收到回调")
-
-        }.resume()
-    }
+        func requestCityStation_a() {
     
-
-    func requestCityStation_b() {
-        
-        guard let url = URL(string: "https://eetest.cpolar.cn/api/cityStation/getAllCitiesWithStations") else {
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        
-        // Header
-        let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjAsIm9yZyI6MCwicm9sZSI6IiIsIlVzZXJuYW1lIjoi5byg5piOIiwiUmVhbE5hbWUiOiIiLCJBdXRob3JpdHlJZCI6MCwiYXV0aG9yaXR5SWRzIjpbNSw4XSwiSUQiOjYwLCJVVUlEIjoiYzUzM2NkZWEtYzg5ZS00MjFmLThmNTItMWQyNTI4YzM3YjMwIiwiQnVmZmVyVGltZSI6NjA0ODAwLCJpc3MiOiJhaXJrb29uIiwiYXVkIjpbIkdWQSJdLCJleHAiOjE3ODU2MzU0OTEsIm5iZiI6MTc4MzA0MzQ5MX0.F-eMmVLuw4Ww3s9KwqckpGA5UsD66s5M1EgUSxb9aTc"
-        
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue(token, forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            
-            if let error = error {
-                print("请求失败：\(error.localizedDescription)")
+            guard let url = URL(string: "https://airkoon.cn/eebusApi/tripSchedule/getTripScheduleListByStationOperation") else {
                 return
             }
-            
-            guard let data = data else {
-                print("返回数据为空")
-                return
-            }
-            
-            // 原始字符串
-            if let jsonString = String(data: data, encoding: .utf8) {
-                //print("原始返回：")
-                //print(jsonString)
-            }
-            
-            // 格式化 JSON 输出
+    
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+    
+            let token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTYwLCJvcmciOjAsInJvbGUiOiIiLCJVc2VybmFtZSI6IuWRqOWHryIsIlJlYWxOYW1lIjoiIiwiQXV0aG9yaXR5SWQiOjAsImF1dGhvcml0eUlkcyI6WzgsNV0sIklEIjoxNjAsIlVVSUQiOiI2YmY1NDU3NC0wYjI1LTQ2MzUtOTYyYS04NzZhNTc2OTAxZGEiLCJCdWZmZXJUaW1lIjo2MDQ4MDAsImlzcyI6ImFpcmtvb24iLCJhdWQiOlsiRUVCVVMiXSwiZXhwIjoxNzkxMDgyNzIyLCJuYmYiOjE3ODg0OTA3MjJ9.WLxMLVE9bW8aU9A0NKk52gqZ1M7DHe8eIoYtprMVECI"
+    
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.setValue(token, forHTTPHeaderField: "Authorization")
+    
+            // POST 参数
+            let params: [String: Any] = [
+                "date": "2026-09-05",
+                "stationId": 15
+            ]
+    
+            // 转成 JSON
             do {
-                let jsonObject = try JSONSerialization.jsonObject(with: data)
-                
-                let prettyData = try JSONSerialization.data(
-                    withJSONObject: jsonObject,
-                    options: [.prettyPrinted]
+                request.httpBody = try JSONSerialization.data(
+                    withJSONObject: params,
+                    options: []
                 )
-                
-                if let prettyJson = String(data: prettyData, encoding: .utf8) {
-                    //print("格式化JSON：")
-//                    print(prettyJson)
-                }
-                
             } catch {
-                print("JSON解析失败：\(error)")
+                print("JSON 参数转换失败：\(error)")
+                return
             }
-            
+    
+            let session = URLSession(configuration: .default)
+    
+            session.dataTask(with: request) { data, response, error in
+    
+                if let error = error {
+                    print("请求失败：\(error)")
+                    return
+                }
+    
+                if let response = response as? HTTPURLResponse {
+                    print("HTTP 状态码：\(response.statusCode)")
+                }
+    
+                guard let data = data else {
+                    print("没有返回数据")
+                    return
+                }
+    
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    //print("返回数据：\(jsonString)")
+                }
+    
+            }.resume()
+        }
+    
+    func requestCityStation_c(){
+
+        guard let url = URL(string: "https://airkoon.cn/eebusApi/tripSchedule/getTripScheduleListByStationOperation") else {
+            return
+        }
+
+        var request = URLRequest(url: url)
+
+        request.httpMethod = "POST"
+
+        let token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTYwLCJvcmciOjAsInJvbGUiOiIiLCJVc2VybmFtZSI6IuWRqOWHryIsIlJlYWxOYW1lIjoiIiwiQXV0aG9yaXR5SWQiOjAsImF1dGhvcml0eUlkcyI6WzgsNV0sIklEIjoxNjAsIlVVSUQiOiI2YmY1NDU3NC0wYjI1LTQ2MzUtOTYyYS04NzZhNTc2OTAxZGEiLCJCdWZmZXJUaW1lIjo2MDQ4MDAsImlzcyI6ImFpcmtvb24iLCJhdWQiOlsiRUVCVVMiXSwiZXhwIjoxNzkxMDgyNzIyLCJuYmYiOjE3ODg0OTA3MjJ9.WLxMLVE9bW8aU9A0NKk52gqZ1M7DHe8eIoYtprMVECI"
+
+        request.setValue(
+            "application/json",
+            forHTTPHeaderField: "Content-Type"
+        )
+
+        request.setValue(
+            "application/json",
+            forHTTPHeaderField: "Accept"
+        )
+
+        request.setValue(
+            token,
+            forHTTPHeaderField: "Authorization"
+        )
+
+        let params: [String: Any] = [
+            "date": "2026-09-05",
+            "stationId": 15
+        ]
+
+        do {
+
+            request.httpBody = try JSONSerialization.data(
+                withJSONObject: params,
+                options: []
+            )
+
+        } catch {
+
+            print("JSON 参数转换失败：\(error)")
+            return
+        }
+
+        URLSession.shared.dataTask(
+            with: request
+        ) { data, response, error in
+
+            if let error {
+                print("请求失败：\(error)")
+                return
+            }
+
+            if let response = response as? HTTPURLResponse {
+                print("HTTP 状态码：\(response.statusCode)")
+            }
+
+            guard let data else {
+                print("没有返回数据")
+                return
+            }
+
+            if let jsonString = String(
+                data: data,
+                encoding: .utf8
+            ) {
+                //print("返回数据：\(jsonString)")
+            }
+
         }.resume()
     }
     
@@ -273,9 +291,4 @@ class ViewController: UIViewController {
     }
  
 }
-
-
-
-
-
 

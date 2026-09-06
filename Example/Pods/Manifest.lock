@@ -1,5 +1,5 @@
 PODS:
-  - DebugCenter (0.1.0)
+  - DebugCenter (1.1.0)
 
 DEPENDENCIES:
   - DebugCenter (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  DebugCenter: 57d5be694f9b530e9dfa7a53712cd0938dd9e430
+  DebugCenter: 2c82ebe19bdf8fdf7c0d6b1c5ebdd197b7de47fd
 
 PODFILE CHECKSUM: 490625c5a5f64d82aae9560f31541ba91bc16dcb
 

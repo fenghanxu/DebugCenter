@@ -387,13 +387,11 @@ extension FHXLog {
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
 
         return logs.map {
-
             """
             [\(formatter.string(from: $0.time))]
             [\($0.level)]
             \($0.file).\($0.function):[\($0.line)]
             \($0.message)
-
             """
         }
         .joined(separator: "\n")
@@ -540,18 +538,9 @@ private extension FHXLog {
             // 提取URL
             let url = extractURL(from: message)
 
-
-            print("========== URL去重测试 ==========")
-            print("URL:", url ?? "nil")
-            print("lastURL:", lastNetworkURL ?? "nil")
-            print("时间差:", now - lastNetworkTime)
-            print("=============================")
-
-
             if let url = url,
                url == lastNetworkURL,
                now - lastNetworkTime < 1.5 { // 1.5秒
-                print("网络日志URL去重成功")
                 return
             }
 

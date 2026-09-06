@@ -11,105 +11,67 @@ class FHXLogCell: UITableViewCell {
 
     private lazy var line: UIView = {
         let line = UIView()
-
         line.backgroundColor = UIColor(
             red: 229.0 / 255.0,
             green: 229.0 / 255.0,
             blue: 229.0 / 255.0,
             alpha: 1.0
         )
-
         return line
     }()
 
     lazy var levelLabel: UILabel = {
         let label = UILabel()
-
         label.text = "error"
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 14)
         label.backgroundColor = .red
         label.textAlignment = .center
-
         label.layer.cornerRadius = 4.0
         label.clipsToBounds = true
-
         return label
     }()
 
     lazy var methodNameLabel: UILabel = {
         let label = UILabel()
-
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 14)
         label.textAlignment = .left
-
         return label
     }()
 
     lazy var timeLabel: UILabel = {
         let label = UILabel()
-
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 14)
-
         return label
     }()
 
     lazy var contentLabel: UILabel = {
         let label = UILabel()
-
         label.numberOfLines = 5
         label.lineBreakMode = .byTruncatingTail
-
         return label
     }()
 
     lazy var moreLabel: UILabel = {
         let label = UILabel()
-
         label.text = "......"
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 14)
         label.textAlignment = .left
-
         return label
     }()
 
     lazy var expandButton: UIButton = {
         let button = UIButton(type: .system)
-
+        button.backgroundColor = UIColor(red: 230.0/255.0, green: 244.0/255.0, blue: 239.0/255.0, alpha: 1.0)
         button.setTitle("展开", for: .normal)
-
-        button.setTitleColor(
-            UIColor(
-                red: 18.0 / 255.0,
-                green: 150.0 / 255.0,
-                blue: 219.0 / 255.0,
-                alpha: 1.0
-            ),
-            for: .normal
-        )
-
+        button.setTitleColor(UIColor(red: 0.0/255.0, green: 144.0/255.0, blue: 109.0/255.0, alpha: 1.0), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-
         button.layer.cornerRadius = 4
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor(
-            red: 18.0 / 255.0,
-            green: 150.0 / 255.0,
-            blue: 219.0 / 255.0,
-            alpha: 1.0
-        ).cgColor
-
         button.clipsToBounds = true
-
-        button.addTarget(
-            self,
-            action: #selector(expandButtonClick),
-            for: .touchUpInside
-        )
-
+        button.addTarget(self, action: #selector(expandButtonClick), for: .touchUpInside)
         return button
     }()
 

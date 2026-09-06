@@ -12,7 +12,6 @@ public class FHXLogViewController: UIViewController, UIGestureRecognizerDelegate
         scrollView.bounces = false
         scrollView.isPagingEnabled = true
         scrollView.backgroundColor = .red
- 
         scrollView.alwaysBounceHorizontal = false
         scrollView.alwaysBounceVertical = false
         scrollView.isDirectionalLockEnabled = true
@@ -586,14 +585,9 @@ extension FHXLogViewController: UITableViewDataSource, UITableViewDelegate {
                 "\(model.message)"
 
                 UIPasteboard.general.string = text
-
-                print("复制成功")
             }
 
-            return UIMenu(
-                title: "",
-                children: [copyAction]
-            )
+            return UIMenu(title: "", children: [copyAction])
         }
     }
 
