@@ -49,12 +49,6 @@ extension URLSessionTask {
                 .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
 
-            print(
-                """
-                🔥 FHX resume:
-                \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "")
-                """
-            )
         }
 
         // 保存 HTTP Body

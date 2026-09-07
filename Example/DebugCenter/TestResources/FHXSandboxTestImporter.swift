@@ -81,6 +81,5 @@ final class FHXSandboxTestImporter {
             )
         }
 
-        print("Sandbox Test Files Imported")
     }
 }

@@ -1,13 +1,14 @@
-//
-//  URLSession+FHX.swift
-//  DebugCenter
-//
-//  Created by fenghanxu on 2026/9/7.
-//
-
 import Foundation
+import ObjectiveC.runtime
 
 extension URLSession {
+
+    // MARK: - Network Log Queue
+
+    private static let fhxLogQueue = DispatchQueue(
+        label: "com.fenghanxu.DebugCenter.URLSessionLog",
+        qos: .utility
+    )
 
     // MARK: - dataTask(with:completionHandler:)
 
@@ -35,13 +36,7 @@ extension URLSession {
             response,
             error in
 
-            let cost =
-                Date().timeIntervalSince(
-                    startTime
-                )
-
-            let realTask =
-                task
+            let realTask = task
 
             let finalRequest =
                 realTask?.fhx_request
@@ -53,6 +48,48 @@ extension URLSession {
                 realTask?.fhx_requestBodyData
                 ?? finalRequest.httpBody
 
+            let headers =
+                self.redactedHeaders(
+                    finalRequest.allHTTPHeaderFields
+                    ?? [:]
+                )
+
+            let cost =
+                Int(
+                    Date()
+                        .timeIntervalSince(startTime)
+                    * 1000
+                )
+
+            let statusCode =
+                (
+                    response
+                    as? HTTPURLResponse
+                )?.statusCode ?? 0
+
+            /*
+             关键：
+
+             先把 App 的 completionHandler 执行掉。
+
+             不要在这里：
+             - String(data:)
+             - prettyJSON
+             - prettyJSONString
+             - FHXLog.shared.log
+             */
+
+            completionHandler(
+                data,
+                response,
+                error
+            )
+
+            /*
+             后面的所有 DebugCenter 日志处理
+             全部放到后台队列。
+             */
+
             let parameter =
                 parameterData.flatMap {
                     String(
@@ -61,84 +98,43 @@ extension URLSession {
                     )
                 } ?? ""
 
-            let responseString =
-                String(
-                    data: data ?? Data(),
-                    encoding: .utf8
-                ) ?? ""
+            let responseData =
+                data ?? Data()
 
-            let statusCode =
-                (
-                    response
-                    as? HTTPURLResponse
-                )?.statusCode ?? 0
+            let logRequest =
+                finalRequest
 
-            let headers =
-                self.redactedHeaders(
-                    finalRequest
-                        .allHTTPHeaderFields
-                    ?? [:]
-                )
-
-            print(
-                """
-                ========= DebugCenter ================
-
-                StatusCode: \(statusCode)
-
-                CostTime: \(Int(cost * 1000))ms
-
-                Error: \(error?.localizedDescription ?? "nil")
-
-                Method: \(finalRequest.httpMethod ?? "GET")
-
-                URL: \(finalRequest.url?.absoluteString ?? "")
-
-                Header:
-                \(prettyJSON(headers))
-
-                Parameter:
-                \(prettyJSONString(parameter))
-
-                Response:
-                \(prettyJSONString(responseString))
-
-                =========================
-                """
-            )
-
-            let log =
-                """
-                Method : \(finalRequest.httpMethod ?? "GET")
-
-                URL : \(finalRequest.url?.absoluteString ?? "")
-
-                StatusCode : \(statusCode)
-
-                CostTime : \(Int(cost * 1000)) ms
-
-                Error : \(error?.localizedDescription ?? "nil")
-
-                Headers :
-                \(prettyJSON(headers))
-
-                Parameters :
-                \(prettyJSONString(parameter))
-
-                Response :
-                \(prettyJSONString(responseString))
-                """
-
-            FHXLog.shared.log(
-                log,
-                .network
-            )
-
-            completionHandler(
-                data,
-                response,
+            let logError =
                 error
-            )
+
+            FHXURLSessionLogQueue.shared.async {
+
+                let responseString =
+                    String(
+                        data: responseData,
+                        encoding: .utf8
+                    ) ?? ""
+
+                let log =
+                    """
+                    Method : \(logRequest.httpMethod ?? "GET")
+                    URL : \(logRequest.url?.absoluteString ?? "")
+                    StatusCode : \(statusCode)
+                    CostTime : \(cost) ms
+                    Error : \(logError?.localizedDescription ?? "nil")
+                    Headers :
+                    \(prettyJSON(headers))
+                    Parameters :
+                    \(prettyJSONString(parameter))
+                    Response :
+                    \(prettyJSONString(responseString))
+                    """
+
+                FHXLog.shared.log(
+                    log,
+                    .network
+                )
+            }
         }
 
         task =
@@ -168,19 +164,11 @@ extension URLSession {
         with request: URLRequest
     ) -> URLSessionDataTask {
 
-        print(
-            """
-            🔥 FHX dataTask(with:) 命中:
-            \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "")
-            """
-        )
-
         let task =
             fhx_dataTask(
                 with: request
             )
 
-        // 保存 Request
         objc_setAssociatedObject(
             task,
             &FHXRequestKey,
@@ -188,7 +176,6 @@ extension URLSession {
             .OBJC_ASSOCIATION_RETAIN_NONATOMIC
         )
 
-        // 保存 HTTP Body
         if let bodyData =
             request.httpBody {
 
@@ -227,4 +214,17 @@ extension URLSession {
 
         return result
     }
+}
+
+// MARK: - FHXURLSessionLogQueue
+
+final class FHXURLSessionLogQueue {
+
+    static let shared =
+        DispatchQueue(
+            label: "com.fenghanxu.DebugCenter.URLSessionLog",
+            qos: .utility
+        )
+
+    private init() {}
 }

@@ -1,16 +1,15 @@
-//
-//  FHXURLSessionDelegateInterceptor.swift
-//  DebugCenter
-//
-//  Created by fenghanxu on 2026/9/7.
-//
-
 import Foundation
 import ObjectiveC.runtime
 
 final class FHXURLSessionDelegateInterceptor {
 
     private static var didStart = false
+
+    /// DebugCenter 网络日志后台处理队列
+    static let logQueue = DispatchQueue(
+        label: "com.fenghanxu.DebugCenter.NetworkLog",
+        qos: .utility
+    )
 
     // MARK: - Start
 
@@ -25,17 +24,8 @@ final class FHXURLSessionDelegateInterceptor {
         guard let delegateClass = NSClassFromString(
             "Alamofire.SessionDelegate"
         ) else {
-
-            print(
-                "⚠️ FHX: 未找到 Alamofire.SessionDelegate，跳过 Alamofire Hook"
-            )
-
             return
         }
-
-        print(
-            "✅ FHX: 找到 Alamofire.SessionDelegate"
-        )
 
         // Response
         swizzle(
@@ -75,10 +65,6 @@ final class FHXURLSessionDelegateInterceptor {
                 )
             )
         )
-
-        print(
-            "✅ FHX: Alamofire SessionDelegate Hook 完成"
-        )
     }
 
     // MARK: - Swizzle
@@ -99,14 +85,6 @@ final class FHXURLSessionDelegateInterceptor {
                 swizzledSelector
             )
         else {
-
-            print(
-                """
-                ❌ FHX: Delegate Hook 失败
-                selector: \(NSStringFromSelector(originalSelector))
-                """
-            )
-
             return
         }
 
@@ -131,12 +109,13 @@ final class FHXURLSessionDelegateInterceptor {
             )
 
         /*
-         如果 Alamofire.SessionDelegate 自己没有实现 swizzledSelector，
-         就把原方法和 Hook 方法都放到 Alamofire.SessionDelegate 自己的
-         method list 中。
+         如果 Alamofire.SessionDelegate 自己没有实现
+         swizzledSelector，就把原方法和 Hook 方法都放到
+         Alamofire.SessionDelegate 自己的 method list 中。
 
          这样不会意外修改 NSObject 全局行为。
          */
+
         if class_addMethod(
             delegateClass,
             originalSelector,
@@ -182,22 +161,17 @@ extension NSObject {
             .OBJC_ASSOCIATION_RETAIN_NONATOMIC
         )
 
+        let responseData =
+            NSMutableData()
+
         objc_setAssociatedObject(
             dataTask,
             &FHXResponseDataKey,
-            Data(),
+            responseData,
             .OBJC_ASSOCIATION_RETAIN_NONATOMIC
         )
 
-        print(
-            """
-            🔵 FHX Alamofire Response:
-
-            \(response)
-            """
-        )
-
-        // 调用 Alamofire 原来的实现
+        // 立即调用 Alamofire 原来的实现
         fhx_urlSession(
             session,
             dataTask: dataTask,
@@ -219,18 +193,39 @@ extension NSObject {
             objc_getAssociatedObject(
                 dataTask,
                 &FHXResponseDataKey
-            ) as? Data ?? Data()
+            ) as? NSMutableData
 
-        responseData.append(data)
+        if responseData == nil {
 
-        objc_setAssociatedObject(
-            dataTask,
-            &FHXResponseDataKey,
-            responseData,
-            .OBJC_ASSOCIATION_RETAIN_NONATOMIC
-        )
+            responseData =
+                NSMutableData()
 
-        // 调用 Alamofire 原来的实现
+            objc_setAssociatedObject(
+                dataTask,
+                &FHXResponseDataKey,
+                responseData,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
+        }
+
+        responseData?.append(data)
+
+        /*
+         这里非常重要：
+
+         只负责收集 Response Data，
+         不执行：
+
+         - JSON 解析
+         - String 转换
+         - prettyJSON
+         - print
+         - FHXLog.shared.log
+         - 磁盘写入
+
+         然后立即调用 Alamofire 原来的实现。
+         */
+
         fhx_urlSession(
             session,
             dataTask: dataTask,
@@ -248,19 +243,21 @@ extension NSObject {
     ) {
 
         /*
-         如果这个 Task 是我们前面
+         如果这个 Task 是通过
          dataTask(with:completionHandler:)
          Hook 创建的，
 
-         那么它已经会在 completionHandler 中记录一次。
+         那么它会在 completionHandler 中记录一次。
 
-         这里跳过，防止重复日志。
+         这里不再重复记录。
          */
+
         if objc_getAssociatedObject(
             task,
             &FHXCompletionHandlerKey
         ) as? Bool == true {
 
+            // 立即调用 Alamofire 原来的实现
             fhx_urlSession(
                 session,
                 task: task,
@@ -270,16 +267,51 @@ extension NSObject {
             return
         }
 
-        // Alamofire DataRequest
+        /*
+         Alamofire DataRequest：
+
+         不要在这里同步执行 FHXNetworkLogger.log()。
+
+         否则：
+
+         网络请求完成
+             ↓
+         DebugCenter 格式化 JSON
+             ↓
+         FHXLog.shared.log()
+             ↓
+         Alamofire 原方法
+             ↓
+         App 收到结果
+
+         会导致 App 网络回调变慢。
+
+         改成：
+
+         网络请求完成
+             ↓
+         后台处理 DebugCenter 日志
+             ↓
+         立即执行 Alamofire 原方法
+             ↓
+         App 收到结果
+         */
+
         if task is URLSessionDataTask {
 
-            FHXNetworkLogger.log(
-                task: task,
-                error: error
-            )
+            let logTask = task
+            let logError = error
+
+            FHXURLSessionDelegateInterceptor.logQueue.async {
+
+                FHXNetworkLogger.log(
+                    task: logTask,
+                    error: logError
+                )
+            }
         }
 
-        // 调用 Alamofire 原来的实现
+        // 立即调用 Alamofire 原来的实现
         fhx_urlSession(
             session,
             task: task,

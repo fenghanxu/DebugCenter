@@ -1,9 +1,3 @@
-//
-//  FHXNetworkLogger.swift
-//  DebugCenter
-//
-//  Created by fenghanxu on 2026/9/7.
-//
 
 import Foundation
 
@@ -33,7 +27,7 @@ final class FHXNetworkLogger {
             objc_getAssociatedObject(
                 task,
                 &FHXResponseDataKey
-            ) as? Data ?? Data()
+            ) as? NSMutableData ?? NSMutableData()
 
         let startTime =
             task.fhx_startTime
@@ -74,7 +68,7 @@ final class FHXNetworkLogger {
 
         let responseString =
             String(
-                data: responseData,
+                data: responseData as Data,
                 encoding: .utf8
             ) ?? ""
 
@@ -105,16 +99,6 @@ final class FHXNetworkLogger {
             Response :
             \(prettyJSONString(responseString))
             """
-
-        print(
-            """
-            ========= DebugCenter ================
-
-            \(log)
-
-            =========================
-            """
-        )
 
         FHXLog.shared.log(
             log,

@@ -52,9 +52,6 @@ final class FHXCompletionSwizzle {
                 swizzledSelector
             )
         else {
-            print(
-                "❌ FHX: dataTask(with:completionHandler:) Hook 失败"
-            )
             return
         }
 
@@ -63,9 +60,6 @@ final class FHXCompletionSwizzle {
             swizzled
         )
 
-        print(
-            "✅ FHX: dataTask(with:completionHandler:) Hook 成功"
-        )
     }
 
     // MARK: - dataTask(with:)
@@ -96,9 +90,6 @@ final class FHXCompletionSwizzle {
                 swizzledSelector
             )
         else {
-            print(
-                "❌ FHX: dataTask(with:) Hook 失败"
-            )
             return
         }
 
@@ -107,9 +98,6 @@ final class FHXCompletionSwizzle {
             swizzled
         )
 
-        print(
-            "✅ FHX: dataTask(with: URLRequest) Hook 成功"
-        )
     }
 }
 

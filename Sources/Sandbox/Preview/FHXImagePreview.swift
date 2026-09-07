@@ -163,13 +163,6 @@ private extension FHXImagePreview {
             let image = UIImage(data: data)
 
         else {
-
-            print("图片加载失败：")
-
-            print(model.path)
-
-            print(FileManager.default.fileExists(atPath: model.path))
-
             return
         }
 

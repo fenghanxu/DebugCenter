@@ -248,10 +248,6 @@ private extension FHXTIFPreview {
 
         else {
 
-            print("TIF图片加载失败")
-
-            print(model.path)
-
             return
         }
 
