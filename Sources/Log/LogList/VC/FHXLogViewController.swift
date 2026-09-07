@@ -11,7 +11,7 @@ public class FHXLogViewController: UIViewController, UIGestureRecognizerDelegate
         scrollView.contentSize = CGSize(width: view.bounds.size.width * 2, height: (screenHeightSDK - totalTopHeightSDK(self)))
         scrollView.bounces = false
         scrollView.isPagingEnabled = true
-        scrollView.backgroundColor = .red
+        scrollView.backgroundColor = .white
         scrollView.alwaysBounceHorizontal = false
         scrollView.alwaysBounceVertical = false
         scrollView.isDirectionalLockEnabled = true
@@ -22,7 +22,7 @@ public class FHXLogViewController: UIViewController, UIGestureRecognizerDelegate
     lazy private var navigatonView : FHXNavigationView = {
         let navigationView = FHXNavigationView(frame: view.frame)
         navigationView.delegate = self
-        navigationView.backgroundColor = .green
+        navigationView.backgroundColor = .white
         return navigationView
     }()
 

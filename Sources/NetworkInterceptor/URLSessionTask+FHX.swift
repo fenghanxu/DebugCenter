@@ -1,19 +1,19 @@
 
-/**
- 这个方法整体在干什么？
- 
- 记录时间 + 打印请求信息 + 再放行请求
- 
- 打印：请求方式 + URL
- */
-
 
 import Foundation
 import ObjectiveC.runtime
 
-private var FHXStartTimeKey: UInt8 = 0
-private var FHXRequestKey: UInt8 = 0
-private var FHXRequestBodyKey: UInt8 = 0
+// MARK: - Associated Object Keys
+
+var FHXStartTimeKey: UInt8 = 0
+var FHXRequestKey: UInt8 = 0
+var FHXRequestBodyKey: UInt8 = 0
+
+var FHXResponseKey: UInt8 = 0
+var FHXResponseDataKey: UInt8 = 0
+var FHXCompletionHandlerKey: UInt8 = 0
+
+// MARK: - URLSessionTask
 
 extension URLSessionTask {
 
@@ -29,11 +29,16 @@ extension URLSessionTask {
             .OBJC_ASSOCIATION_RETAIN_NONATOMIC
         )
 
-        let originalRequest = self.originalRequest
-        let currentRequest = self.currentRequest
+        let currentRequest =
+            self.currentRequest
 
-        // 优先 currentRequest，其次 originalRequest
-        let request = currentRequest ?? originalRequest
+        let originalRequest =
+            self.originalRequest
+
+        // 优先 currentRequest
+        let request =
+            currentRequest
+            ?? originalRequest
 
         if let request {
 
@@ -43,8 +48,16 @@ extension URLSessionTask {
                 request,
                 .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
+
+            print(
+                """
+                🔥 FHX resume:
+                \(request.httpMethod ?? "GET") \(request.url?.absoluteString ?? "")
+                """
+            )
         }
-        
+
+        // 保存 HTTP Body
         let bodyData =
             currentRequest?.httpBody
             ?? originalRequest?.httpBody
@@ -59,6 +72,7 @@ extension URLSessionTask {
             )
         }
 
+        // 调用真正的 resume
         fhx_resume()
     }
 

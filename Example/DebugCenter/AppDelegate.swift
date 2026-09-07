@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window.rootViewController = navigationController
         self.window = window
         window.makeKeyAndVisible()
-//        FHXDebugGesture.shared.start()
+
         FHXDebugCenter.start()
         return true
     }

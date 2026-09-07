@@ -2,6 +2,8 @@ use_frameworks!
 
 platform :ios, '10.0'
 
+pod 'Alamofire',  '~> 5.10.2'
+
 target 'DebugCenter_Example' do
   pod 'DebugCenter', :path => '../'
 

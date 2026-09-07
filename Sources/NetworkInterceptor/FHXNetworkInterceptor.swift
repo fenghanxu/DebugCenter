@@ -1,5 +1,3 @@
-/// 整个网络监控初始化
-
 import Foundation
 
 final class FHXNetworkInterceptor {
@@ -13,11 +11,14 @@ final class FHXNetworkInterceptor {
         }
 
         didStart = true
-        
-        // 2. Hook URLSessionTask.resume
+
+        // Hook URLSessionTask.resume
         FHXURLSessionSwizzle.start()
 
-        // 3. Hook URLSession.dataTask
+        // Hook URLSession.dataTask
         FHXCompletionSwizzle.start()
+
+        // Hook Alamofire SessionDelegate
+        FHXURLSessionDelegateInterceptor.start()
     }
 }
