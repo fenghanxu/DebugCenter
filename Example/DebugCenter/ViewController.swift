@@ -14,13 +14,15 @@ class ViewController: UIViewController {
     
     private var logTimer: Timer?
     
+    private let token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTI2LCJvcmciOjAsInJvbGUiOiIiLCJVc2VybmFtZSI6IumDreWBpSIsIlJlYWxOYW1lIjoiIiwiQXV0aG9yaXR5SWQiOjAsImF1dGhvcml0eUlkcyI6WzE3LDJdLCJJRCI6MTI2LCJVVUlEIjoiMThlMWJlZmMtOTI4NS00NzdkLWEwNDItZjE4ZDViZDhkZWEzIiwiQnVmZmVyVGltZSI6NjA0ODAwLCJpc3MiOiJhaXJrb29uIiwiYXVkIjpbIkVFQlVTIl0sImV4cCI6MTc5MjM4NjE4NiwibmJmIjoxNzg5Nzk0MTg2fQ.hsBfdyAxU7ADXa1bQF3StYNGt5jt-HZsQuu0UNO2mQs"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
 
-//        URLSession_data_Task_with()
-//        URLSession_shared_dataTask()
-        Alamofire()
+        URLSession_data_Task_with()
+        URLSession_shared_dataTask()
+//        Alamofire()
         
     }
     
@@ -32,8 +34,6 @@ class ViewController: UIViewController {
     
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
-    
-            let token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTYwLCJvcmciOjAsInJvbGUiOiIiLCJVc2VybmFtZSI6IuWRqOWHryIsIlJlYWxOYW1lIjoiIiwiQXV0aG9yaXR5SWQiOjAsImF1dGhvcml0eUlkcyI6WzgsNV0sIklEIjoxNjAsIlVVSUQiOiI2YmY1NDU3NC0wYjI1LTQ2MzUtOTYyYS04NzZhNTc2OTAxZGEiLCJCdWZmZXJUaW1lIjo2MDQ4MDAsImlzcyI6ImFpcmtvb24iLCJhdWQiOlsiRUVCVVMiXSwiZXhwIjoxNzkxMDgyNzIyLCJuYmYiOjE3ODg0OTA3MjJ9.WLxMLVE9bW8aU9A0NKk52gqZ1M7DHe8eIoYtprMVECI"
     
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -90,8 +90,6 @@ class ViewController: UIViewController {
         var request = URLRequest(url: url)
 
         request.httpMethod = "POST"
-
-        let token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTYwLCJvcmciOjAsInJvbGUiOiIiLCJVc2VybmFtZSI6IuWRqOWHryIsIlJlYWxOYW1lIjoiIiwiQXV0aG9yaXR5SWQiOjAsImF1dGhvcml0eUlkcyI6WzgsNV0sIklEIjoxNjAsIlVVSUQiOiI2YmY1NDU3NC0wYjI1LTQ2MzUtOTYyYS04NzZhNTc2OTAxZGEiLCJCdWZmZXJUaW1lIjo2MDQ4MDAsImlzcyI6ImFpcmtvb24iLCJhdWQiOlsiRUVCVVMiXSwiZXhwIjoxNzkxMDgyNzIyLCJuYmYiOjE3ODg0OTA3MjJ9.WLxMLVE9bW8aU9A0NKk52gqZ1M7DHe8eIoYtprMVECI"
 
         request.setValue(
             "application/json",
@@ -157,8 +155,6 @@ class ViewController: UIViewController {
     func Alamofire() {
 
         let url = "https://airkoon.cn/eebusApi/tripSchedule/getTripScheduleListByStationOperation"
-
-        let token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTYwLCJvcmciOjAsInJvbGUiOiIiLCJVc2VybmFtZSI6IuWRqOWHryIsIlJlYWxOYW1lIjoiIiwiQXV0aG9yaXR5SWQiOjAsImF1dGhvcml0eUlkcyI6WzgsNV0sIklEIjoxNjAsIlVVSUQiOiI2YmY1NDU3NC0wYjI1LTQ2MzUtOTYyYS04NzZhNTc2OTAxZGEiLCJCdWZmZXJUaW1lIjo2MDQ4MDAsImlzcyI6ImFpcmtvb24iLCJhdWQiOlsiRUVCVVMiXSwiZXhwIjoxNzkxMDgyNzIyLCJuYmYiOjE3ODg0OTA3MjJ9.WLxMLVE9bW8aU9A0NKk52gqZ1M7DHe8eIoYtprMVECI"
 
         let params: [String: Any] = [
             "date": "2026-09-05",

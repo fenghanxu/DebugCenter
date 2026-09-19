@@ -1,3 +1,4 @@
+
 import Foundation
 
 final class FHXNetworkInterceptor {
@@ -6,19 +7,13 @@ final class FHXNetworkInterceptor {
 
     static func start() {
 
-        guard !didStart else {
-            return
-        }
+        guard !didStart else { return }
 
+        // 防止重复初始化
         didStart = true
+        
+        // 只使用 URLProtocol 方案
+        URLProtocol.registerClass(FHXURLProtocol.self)
 
-        // Hook URLSessionTask.resume
-        FHXURLSessionSwizzle.start()
-
-        // Hook URLSession.dataTask
-        FHXCompletionSwizzle.start()
-
-        // Hook Alamofire SessionDelegate
-        FHXURLSessionDelegateInterceptor.start()
     }
 }
