@@ -19,6 +19,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        
+        FHXLog("请求失败", .error)
+        
+        FHXLog.shared.log("123", .crash)
 
         URLSession_data_Task_with()
         URLSession_shared_dataTask()

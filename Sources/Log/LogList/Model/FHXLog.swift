@@ -238,8 +238,36 @@ public class FHXLog {
     public static let shared = FHXLog()
     private init() {}
 
+    /// 快速记录一条日志。
+    ///
+    /// 该初始化方法不会创建或使用独立的日志存储，而是将日志转发给
+    /// `FHXLog.shared`，因此与原有 API 共用相同的开关、数量限制、网络
+    /// 去重、历史记录及导出功能。调用完成后返回的实例无需保留。
+    ///
+    /// 示例：`FHXLog("请求失败", .error)`
+    @discardableResult
+    public convenience init(
+        _ message: Any,
+        _ level: FHXLogType = .debug,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line
+    ) {
+        self.init()
+        FHXLog.shared.log(
+            message,
+            level,
+            file: file,
+            function: function,
+            line: line
+        )
+    }
+
     // MARK: - storage
-    private let store = FHXLogStore()
+    // 快速调用 `FHXLog(...)` 仍会创建一个短生命周期的实例，因此存储必须
+    // 在实例之间共享，避免每次调用都重新加载历史日志或产生独立数据。
+    private static let sharedStore = FHXLogStore()
+    private let store = FHXLog.sharedStore
 
     // MARK: - config（来自 SPLogs 思想）
     

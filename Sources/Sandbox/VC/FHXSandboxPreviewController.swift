@@ -39,6 +39,11 @@
 import UIKit
 
 final class FHXSandboxPreviewController: UIViewController {
+    
+    private lazy var navigationView: SandboxNavigationView = {
+        let navigationView = SandboxNavigationView()
+        return navigationView
+    }()
 
     // MARK: - Property
 
@@ -73,6 +78,16 @@ final class FHXSandboxPreviewController: UIViewController {
         title = model.name
 
         loadPreview()
+    }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: false)
     }
 
 }
@@ -114,12 +129,15 @@ private extension FHXSandboxPreviewController {
     func show(
         _ controller: UIViewController
     ) {
+        
+        view.addSubview(navigationView)
+        navigationView.frame = CGRectMake(0, 0, screenWidthSDK, safeAreaTopSDK + 44)
+        navigationView.title = model.name
 
         addChild(controller)
 
         view.addSubview(controller.view)
-
-        controller.view.frame = view.bounds
+        controller.view.frame = CGRectMake(0, safeAreaTopSDK + 44, screenWidthSDK, screenHeightSDK - safeAreaTopSDK - 44)
 
         controller.view.autoresizingMask = [
             .flexibleWidth,

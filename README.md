@@ -7,6 +7,16 @@
 
 ## Example
 
+记录日志时可以直接使用简写形式：
+
+```swift
+FHXLog("请求失败", .error)
+FHXLog("崩溃信息", .crash)
+```
+
+该写法与原有的 `FHXLog.shared.log(...)`、`FHXLog.shared.debug(...)` 等 API
+共用同一份日志数据和配置。原有调用方式仍然支持。
+
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements

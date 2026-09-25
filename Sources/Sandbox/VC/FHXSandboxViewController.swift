@@ -16,6 +16,11 @@ final class FHXSandboxViewController: UIViewController {
 
     /// 当前显示的数据
     private var dataSource: [FHXSandboxModel] = []
+    
+    private lazy var navigationView: SandboxNavigationView = {
+        let navigationView = SandboxNavigationView()
+        return navigationView
+    }()
 
     private lazy var tableView: UITableView = {
 
@@ -57,15 +62,23 @@ final class FHXSandboxViewController: UIViewController {
     // MARK: - Life Cycle
 
     override func viewDidLoad() {
-
         super.viewDidLoad()
-
         view.backgroundColor = .white
 
         buildUI()
-
         loadData()
     }
+    
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: false)
+    }
+    
 }
 
 // MARK: - UI
@@ -73,10 +86,12 @@ final class FHXSandboxViewController: UIViewController {
 private extension FHXSandboxViewController {
 
     func buildUI() {
-
+        view.addSubview(navigationView)
+        navigationView.frame = CGRectMake(0, 0, screenWidthSDK, safeAreaTopSDK + 44)
+        navigationView.title = "沙盒"
+        
         view.addSubview(tableView)
-
-        tableView.frame = view.bounds
+        tableView.frame = CGRectMake(0, safeAreaTopSDK + 44, screenWidthSDK, safeScreenHeightSDK - safeAreaTopSDK - 44)
         tableView.autoresizingMask = [
             .flexibleWidth,
             .flexibleHeight

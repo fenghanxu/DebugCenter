@@ -1,6 +1,6 @@
 PODS:
   - Alamofire (5.10.2)
-  - DebugCenter (1.2.2)
+  - DebugCenter (1.2.3)
 
 DEPENDENCIES:
   - Alamofire (~> 5.10.2)
@@ -16,7 +16,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: 7193b3b92c74a07f85569e1a6c4f4237291e7496
-  DebugCenter: 36f5ce933969d4f1f7589e0fe032a217bb7a6bbd
+  DebugCenter: dbd5c993d12b1a4ff69ef7ea24a027f03be93742
 
 PODFILE CHECKSUM: 812ad1d378eca84f138e28e7bb5bae1b6868efc9
 

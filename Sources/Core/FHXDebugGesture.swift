@@ -190,9 +190,30 @@ private extension FHXDebugGesture {
             return nil
         }
 
+        // presented 控制器位于当前控制器之上，必须优先处理。
+        // 日志页本身是以 UINavigationController 形式 present 的，
+        // 如果先处理导航控制器，会错误地返回被覆盖的下层页面。
+        if let presentedViewController =
+            viewController.presentedViewController {
+
+            return topViewController(
+                from: presentedViewController
+            )
+        }
+
         // UINavigationController
         if let navigationController =
             viewController as? UINavigationController {
+
+            // FHXDetailViewController、FHXSandboxViewController 和
+            // FHXSandboxPreviewController 都是从 FHXLogViewController
+            // 所在的导航栈 push 出来的。此时应将日志页视为当前页面，
+            // 不要把这些子页面当成外部页面再次触发 present。
+            if let logViewController = navigationController.viewControllers
+                .first(where: { $0 is FHXLogViewController }) {
+
+                return logViewController
+            }
 
             return topViewController(
                 from: navigationController.visibleViewController
@@ -205,15 +226,6 @@ private extension FHXDebugGesture {
 
             return topViewController(
                 from: tabBarController.selectedViewController
-            )
-        }
-
-        // Presented ViewController
-        if let presentedViewController =
-            viewController.presentedViewController {
-
-            return topViewController(
-                from: presentedViewController
             )
         }
 

@@ -2,6 +2,20 @@
 import UIKit
 
 public class FHXLogViewController: UIViewController, UIGestureRecognizerDelegate {
+
+    // 日志页是 presented 导航控制器的根页面，没有 navigation stack 可以 pop。
+    // 使用左边缘右滑手势，以 dismiss 当前 presented 导航控制器。
+    private lazy var interactiveDismissGesture: UIScreenEdgePanGestureRecognizer = {
+        let gesture = UIScreenEdgePanGestureRecognizer(
+            target: self,
+            action: #selector(handleInteractiveDismiss(_:))
+        )
+        gesture.edges = .left
+        gesture.delegate = self
+        return gesture
+    }()
+
+    private var isInteractiveDismissing = false
     
     lazy private var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -160,18 +174,100 @@ public class FHXLogViewController: UIViewController, UIGestureRecognizerDelegate
         scrollView.addSubview(navigatonView)
         scrollView.addSubview(currentTableView)
         scrollView.addSubview(historyTableView)
+
+        view.addGestureRecognizer(interactiveDismissGesture)
+
+        // 日志页自身是横向分页滚动，等待边缘退出手势先判定，避免两者抢手势。
+        scrollView.panGestureRecognizer.require(toFail: interactiveDismissGesture)
         
-        guard let popGesture = navigationController?.interactivePopGestureRecognizer else {
+        navigationController?.interactivePopGestureRecognizer?.delegate = nil
+    }
+
+    @objc
+    private func handleInteractiveDismiss(_ gesture: UIScreenEdgePanGestureRecognizer) {
+        guard let navigationController = navigationController,
+              navigationController.presentingViewController != nil,
+              navigationController.presentedViewController == nil else {
             return
         }
 
-        popGesture.delegate = self
+        guard let containerView = navigationController.view else {
+            return
+        }
 
-        // 让 UIScrollView 的横向 pan 等待系统侧滑返回手势判断失败以后再执行
-        scrollView.panGestureRecognizer.require(toFail: popGesture)
+        let width = max(containerView.bounds.width, 1)
+        let translation = gesture.translation(in: containerView)
+        let velocity = gesture.velocity(in: containerView)
+
+        switch gesture.state {
+        case .began:
+            isInteractiveDismissing = true
+            containerView.transform = .identity
+
+        case .changed:
+            guard isInteractiveDismissing else { return }
+
+            // 边缘手势只接受向右的位移，避免左滑时出现反向动画。
+            let offset = max(0, translation.x)
+            containerView.transform = CGAffineTransform(translationX: offset, y: 0)
+
+        case .ended, .cancelled, .failed:
+            guard isInteractiveDismissing else { return }
+
+            isInteractiveDismissing = false
+
+            let progress = max(0, min(translation.x / width, 1))
+            let shouldDismiss =
+                gesture.state == .ended &&
+                (progress > 0.35 || velocity.x > 900)
+
+            if shouldDismiss {
+                UIView.animate(
+                    withDuration: 0.2,
+                    delay: 0,
+                    options: [.curveEaseOut, .beginFromCurrentState]
+                ) {
+                    containerView.transform = CGAffineTransform(
+                        translationX: width,
+                        y: 0
+                    )
+                } completion: { _ in
+                    // 从 presented 的根页面 dismiss 时，UIKit 会自动关闭外层导航控制器。
+                    navigationController.dismiss(animated: false)
+                }
+            } else {
+                UIView.animate(
+                    withDuration: 0.25,
+                    delay: 0,
+                    usingSpringWithDamping: 0.85,
+                    initialSpringVelocity: 0,
+                    options: [.beginFromCurrentState, .allowUserInteraction]
+                ) {
+                    containerView.transform = .identity
+                }
+            }
+
+        default:
+            break
+        }
     }
     
     public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+
+        if gestureRecognizer === interactiveDismissGesture {
+            guard let navigationController = navigationController,
+                  navigationController.presentingViewController != nil,
+                  navigationController.presentedViewController == nil else {
+                return false
+            }
+
+            guard let navigationView = navigationController.view else {
+                return false
+            }
+
+            let velocity = interactiveDismissGesture.velocity(in: navigationView)
+            return velocity.x > 0 && abs(velocity.x) > abs(velocity.y)
+        }
         
         guard gestureRecognizer === navigationController?.interactivePopGestureRecognizer else {
             return true

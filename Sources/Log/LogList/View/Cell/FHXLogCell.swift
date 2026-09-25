@@ -62,17 +62,17 @@ class FHXLogCell: UITableViewCell {
         label.textAlignment = .left
         return label
     }()
-
-    lazy var expandButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.backgroundColor = UIColor(red: 230.0/255.0, green: 244.0/255.0, blue: 239.0/255.0, alpha: 1.0)
-        button.setTitle("展开", for: .normal)
-        button.setTitleColor(UIColor(red: 0.0/255.0, green: 144.0/255.0, blue: 109.0/255.0, alpha: 1.0), for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        button.layer.cornerRadius = 4
-        button.clipsToBounds = true
-        button.addTarget(self, action: #selector(expandButtonClick), for: .touchUpInside)
-        return button
+    
+    lazy var expandLabel: UILabel = {
+        let label = UILabel()
+        label.text = "展开"
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor(red: 0.0/255.0, green: 144.0/255.0, blue: 109.0/255.0, alpha: 1.0)
+        label.backgroundColor = UIColor(red: 230.0/255.0, green: 244.0/255.0, blue: 239.0/255.0, alpha: 1.0)
+        label.layer.cornerRadius = 4
+        label.clipsToBounds = true
+        return label
     }()
 
     // MARK: - Init
@@ -124,7 +124,7 @@ class FHXLogCell: UITableViewCell {
         contentView.addSubview(methodNameLabel)
         contentView.addSubview(contentLabel)
         contentView.addSubview(moreLabel)
-        contentView.addSubview(expandButton)
+        contentView.addSubview(expandLabel)
 
         line.translatesAutoresizingMaskIntoConstraints = false
         levelLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -132,7 +132,7 @@ class FHXLogCell: UITableViewCell {
         methodNameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentLabel.translatesAutoresizingMaskIntoConstraints = false
         moreLabel.translatesAutoresizingMaskIntoConstraints = false
-        expandButton.translatesAutoresizingMaskIntoConstraints = false
+        expandLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
 
@@ -243,28 +243,28 @@ class FHXLogCell: UITableViewCell {
 
             // MARK: - expandButton
 
-            expandButton.bottomAnchor.constraint(
+            expandLabel.bottomAnchor.constraint(
                 equalTo: contentView.bottomAnchor,
                 constant: -10
             ),
 
-            expandButton.trailingAnchor.constraint(
+            expandLabel.trailingAnchor.constraint(
                 equalTo: contentView.trailingAnchor,
                 constant: -10
             ),
 
-            expandButton.widthAnchor.constraint(
+            expandLabel.widthAnchor.constraint(
                 equalToConstant: 50
             ),
 
-            expandButton.heightAnchor.constraint(
+            expandLabel.heightAnchor.constraint(
                 equalToConstant: 30
             )
         ])
 
         // 默认隐藏
         moreLabel.isHidden = true
-        expandButton.isHidden = true
+        expandLabel.isHidden = true
     }
 
     // MARK: - Expand
@@ -272,7 +272,7 @@ class FHXLogCell: UITableViewCell {
     func showExpandButton(_ show: Bool) {
 
         moreLabel.isHidden = !show
-        expandButton.isHidden = !show
+        expandLabel.isHidden = !show
     }
 
     @objc
@@ -286,7 +286,7 @@ class FHXLogCell: UITableViewCell {
         super.prepareForReuse()
 
         moreLabel.isHidden = true
-        expandButton.isHidden = true
+        expandLabel.isHidden = true
 
         expandBlock = nil
     }
